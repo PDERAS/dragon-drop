@@ -41,7 +41,7 @@ export default {
             const y = JSON.parse(e.dataTransfer.getData('text'));
 
             // copy array & swap elements
-            const newArr = this.value;
+            const newArr = [ ...this.value ];
             const index = newArr.indexOf(newArr.find(j => this.keyFn(j) === y));
             const index2 = newArr.indexOf(newArr.find(j => this.keyFn(j) === this.keyFn(i)));
             const rows = [newArr[Math.min(index, index2)], newArr[Math.max(index, index2)]];
@@ -50,12 +50,12 @@ export default {
 
             // emit update
             this.$emit('input', newArr);
-            this.$emit('drag-end', i);
+            this.$emit('drag-end', { item: i });
         },
 
         dragStart(i, e) {
             e.dataTransfer.setData('text', JSON.stringify(this.keyFn(i)));
-            this.$emit('drag-start', i);
+            this.$emit('drag-start', { item: i });
         },
 
         dragOver(e) {
@@ -66,14 +66,20 @@ export default {
     render(h) {
         return h('transition-group', {attrs: { name: this.transition, tag: this.tag } }, [
             ...this.value.map(item => {
-
-                // compile the slot
+                // pre-compile the slot
+                // ------
+                // [0] only takes the first root element
+                // instead of taking [0], we should be able to map
+                // over all slots to remove the one root element
+                // restriction.
                 const slot = this.$scopedSlots.default({ item })[0];
 
                 // key generation
                 const key = this.keyFn(item);
 
-                // default dragon events
+                // default dragon events. these are native html events
+                // which are first processed and emit the matching
+                // vue.js event
                 const dragonEvents = {
                     drop: e => this.drop(item, e),
                     dragover: this.dragOver,
