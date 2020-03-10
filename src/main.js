@@ -7,3 +7,4 @@ const DragonDropPlugin = {
 };
 
 export default DragonDropPlugin;
+export { DragonDrop };

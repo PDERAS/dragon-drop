@@ -1,6 +1,6 @@
 {
   "name": "@pderas/dragon-drop",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A simple to use Dragon Drop Library",
   "main": "dist/vue-dragon-drop.umd.min.js",
   "author": "Reed Jones <reed.jones@pderas.com>",
@@ -9,10 +9,9 @@
     "lint": "eslint src --ext .js,.vue",
     "lint:fix": "eslint src --ext .js,.vue --fix",
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build ./src/main.js",
     "watch": "vue-cli-service build --watch --target lib --name vue-dragon-drop ./src/main.js",
-    "bundle:project": "vue-cli-service build --target lib --name vue-dragon-drop ./src/main.js",
-    "bundle": "npm run lint && npm run bundle:project"
+    "bundle": "vue-cli-service build --target lib --name vue-dragon-drop ./src/main.js",
+    "build": "npm run lint && npm run bundle"
   },
   "repository": {
     "type": "git",
@@ -33,12 +32,12 @@
     "src/*"
   ],
   "devDependencies": {
-    "@pderas/eslint-config": "^1.0.0",
-    "@vue/babel-preset-app": "^4.0.5",
-    "@vue/cli-plugin-babel": "^4.0.5",
-    "@vue/cli-plugin-eslint": "^4.0.5",
-    "@vue/cli-service": "^4.0.5",
-    "eslint": "^6.6.0",
-    "vue-template-compiler": "^2.6.10"
+    "@pderas/eslint-config": "^1.1.1",
+    "@vue/babel-preset-app": "^4.2.3",
+    "@vue/cli-plugin-babel": "^4.2.3",
+    "@vue/cli-plugin-eslint": "^4.2.3",
+    "@vue/cli-service": "^4.2.3",
+    "eslint": "^6.8.0",
+    "vue-template-compiler": "^2.6.11"
   }
 }
