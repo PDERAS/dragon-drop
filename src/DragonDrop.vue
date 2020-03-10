@@ -92,27 +92,48 @@ export default {
                 // if no tag exists, we assume its raw text and we wrap with a
                 // div so that we can add our events/handlers
                 return slots.map((slot, keyIdx) => {
+                    // If the slot has a tag (div,span,h1 etc) we will use that as the base component
+                    // for our renderless drag logic. if there is no tag present, we will need to
+                    // inject a div into the mix so that we can add event listeners
                     return slot.tag
                         ? {
+                            // copy all of the previously existing items
+                            // we will only need to update a few key items
                             ...slot,
+                            // We will need to generate unique keys for each if the items
+                            // in the array. since then all are belonging to the same parent
+                            // our key selector is no longer unique here (item.id would be)
+                            // the same for every item), so in addition to the key, we are
+                            // adding on the index
                             key: `${key}_${keyIdx}`,
+
+                            // We will inject event listeners & dom attributes here
                             data: {
+                                // First copy all previous data
                                 ...slot.data,
+
+                                // Event Listeners
                                 on: {
+                                    // Re-use all existing event listeners
                                     ...slot.data && slot.data.on,
+
+                                    // Inject the 'dragon-drop' event listeners
                                     ...dragonEvents
                                 },
                                 attrs: {
+                                    // Attach any dom attributes, or other items attached
                                     ...slot.data && slot.data.attrs,
+
+                                    // Force set draggable to true
                                     draggable: true
                                 }
                             }
                         }
-                        : [h('h1', { // we need to wrap raw text with a div so that we can attach event listeners etc.
-                            key: `${key}_${keyIdx}`,
-                            on: dragonEvents,
-                            attrs: { draggable: true },
-                        }, slot.text)];
+                        : [h('div', { // we need to wrap raw text with a div so that we can attach event listeners etc.
+                            key: `${key}_${keyIdx}`, // generate the unique key
+                            on: dragonEvents, // add event listeners
+                            attrs: { draggable: true }, // attach draggable attribute
+                        }, slot.text)]; // add raw text as child
                 });
             })
         ]);
