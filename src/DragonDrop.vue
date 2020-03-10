@@ -7,7 +7,7 @@ export default {
         },
 
         itemKey: {
-            type: String,
+            type: [String, Function],
             default: 'id'
         },
 
@@ -28,7 +28,11 @@ export default {
         // if that is not found, we use the entire item as a key
         keyFn(item) {
             if (this.value.length && this.value[0] && this.value[0][this.itemKey]) {
-                return item[this.itemKey];
+                if (typeof(this.itemKey) === 'string') {
+                    return item[this.itemKey];
+                }
+
+                return this.itemKey(item);
             } else {
                 return item;
             }
@@ -65,14 +69,12 @@ export default {
     },
     render(h) {
         return h('transition-group', {attrs: { name: this.transition, tag: this.tag } }, [
-            ...this.value.map(item => {
+            ...this.value.flatMap((item, index) => {
                 // pre-compile the slot
-                // ------
-                // [0] only takes the first root element
-                // instead of taking [0], we should be able to map
-                // over all slots to remove the one root element
-                // restriction.
-                const slot = this.$scopedSlots.default({ item })[0];
+                // line breaks are action text nodes, so we will filter them out
+                // before proceeding
+                const slots = this.$scopedSlots.default({ item, index })
+                    .filter(t => t.tag || t.data || t.children || t.text !== ' ');
 
                 // key generation
                 const key = this.keyFn(item);
@@ -89,25 +91,29 @@ export default {
                 // if the tag exists we can inject the event listeners & handlers
                 // if no tag exists, we assume its raw text and we wrap with a
                 // div so that we can add our events/handlers
-                return slot.tag ? {
-                    ...slot,
-                    key,
-                    data: {
-                        ...slot.data,
-                        on: {
-                            ...slot.data && slot.data.on,
-                            ...dragonEvents
-                        },
-                        attrs: {
-                            ...slot.data && slot.data.attrs,
-                            draggable: true
+                return slots.map((slot, keyIdx) => {
+                    return slot.tag
+                        ? {
+                            ...slot,
+                            key: `${key}_${keyIdx}`,
+                            data: {
+                                ...slot.data,
+                                on: {
+                                    ...slot.data && slot.data.on,
+                                    ...dragonEvents
+                                },
+                                attrs: {
+                                    ...slot.data && slot.data.attrs,
+                                    draggable: true
+                                }
+                            }
                         }
-                    }
-                } : [h('div', { // we need to wrap raw text with a div so that we can attach event listeners etc.
-                    key,
-                    on: dragonEvents,
-                    attrs: { draggable: true },
-                }, slot.text)];
+                        : [h('h1', { // we need to wrap raw text with a div so that we can attach event listeners etc.
+                            key: `${key}_${keyIdx}`,
+                            on: dragonEvents,
+                            attrs: { draggable: true },
+                        }, slot.text)];
+                });
             })
         ]);
     }
