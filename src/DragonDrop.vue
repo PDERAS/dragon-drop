@@ -19,6 +19,11 @@ export default {
         transition: {
             type: String,
             default: 'dragon-drop'
+        },
+
+        mode: {
+            type: String,
+            default: 'swap'
         }
     },
 
@@ -49,8 +54,15 @@ export default {
             const index = newArr.indexOf(newArr.find(j => this.keyFn(j) === y));
             const index2 = newArr.indexOf(newArr.find(j => this.keyFn(j) === this.keyFn(i)));
             const rows = [newArr[Math.min(index, index2)], newArr[Math.max(index, index2)]];
-            newArr.splice(Math.min(index, index2), 1, rows[1]);
-            newArr.splice(Math.max(index, index2), 1, rows[0]);
+
+            if (this.mode === 'swap') {
+                newArr.splice(Math.min(index, index2), 1, rows[1]);
+                newArr.splice(Math.max(index, index2), 1, rows[0]);
+            } else if (this.mode === 'insert') {
+                let row = newArr[index];
+                newArr.splice(index, 1);
+                newArr.splice(index2, 0, row);
+            }
 
             // emit update
             this.$emit('input', newArr);
